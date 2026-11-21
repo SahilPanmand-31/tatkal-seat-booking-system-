@@ -1,25 +1,25 @@
 package com.sahilpanmand.tatkal.repository;
 
 import com.sahilpanmand.tatkal.entity.Booking;
+import com.sahilpanmand.tatkal.entity.BookingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    // Confirmed bookings for these seats on this journey (empty list = all seats free)
-    @Query("select b from Booking b where b.journey.id = :journeyId and b.seat.id in :seatIds and b.active = true")
-    List<Booking> findActiveBookings(@Param("journeyId") Long journeyId, @Param("seatIds") Collection<Long> seatIds);
+    // Is this seat already booked (CONFIRMED) on this journey?
+    boolean existsByJourneyIdAndSeatIdAndStatus(Long journeyId, Long seatId, BookingStatus status);
 
-    @Query("select b.seat.id from Booking b where b.journey.id = :journeyId and b.active = true")
-    List<Long> findBookedSeatIds(@Param("journeyId") Long journeyId);
+    @Query("select b.seat.id from Booking b where b.journey.id = :journeyId and b.status = :status")
+    List<Long> findSeatIdsByJourneyIdAndStatus(@Param("journeyId") Long journeyId, @Param("status") BookingStatus status);
 
-    long countByJourneyIdAndActiveTrue(Long journeyId);
+    long countByJourneyIdAndStatus(Long journeyId, BookingStatus status);
 
-    List<Booking> findByPnrOrderBySeatId(String pnr);
+    Optional<Booking> findByPnr(String pnr);
 
     List<Booking> findByUserEmailOrderByBookedAtDesc(String email);
 

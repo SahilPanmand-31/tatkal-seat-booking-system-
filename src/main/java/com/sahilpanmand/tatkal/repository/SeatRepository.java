@@ -9,8 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface SeatRepository extends JpaRepository<Seat, Long> {
 
@@ -19,15 +19,13 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
     long countByTrainId(Long trainId);
 
     /**
-     * The heart of the project. Runs SELECT ... FOR UPDATE on the requested seat rows.
-     * - The first transaction gets the row locks; every other transaction asking for the
-     *   same seats WAITS here until the first one commits or rolls back.
-     * - ORDER BY id: everyone locks rows in the same order, so two multi-seat bookings
-     *   can never deadlock each other.
-     * - lock.timeout: give up after 5 seconds instead of waiting forever.
+     * The heart of the project: runs SELECT ... FOR UPDATE on one seat row.
+     * The first transaction gets the lock; any other transaction asking for the same seat
+     * WAITS here until the first one commits or rolls back.
+     * lock.timeout = 5000 ms, so a request gives up instead of waiting forever.
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints(@QueryHint(name = "jakarta.persistence.lock.timeout", value = "5000"))
-    @Query("select s from Seat s where s.train.id = :trainId and s.id in :seatIds order by s.id")
-    List<Seat> findAndLockSeats(@Param("trainId") Long trainId, @Param("seatIds") Collection<Long> seatIds);
+    @Query("select s from Seat s where s.train.id = :trainId and s.id = :seatId")
+    Optional<Seat> findAndLockSeat(@Param("trainId") Long trainId, @Param("seatId") Long seatId);
 }

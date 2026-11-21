@@ -1,7 +1,6 @@
 package com.sahilpanmand.tatkal.exception;
 
 import com.sahilpanmand.tatkal.dto.ErrorResponse;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,15 +26,10 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.CONFLICT, e.getMessage());
     }
 
-    // Safety nets: the unique constraint on bookings fired, or we waited too long for a seat lock.
-    @ExceptionHandler({DataIntegrityViolationException.class, PessimisticLockingFailureException.class})
-    public ResponseEntity<ErrorResponse> seatBusy(Exception e) {
-        return build(HttpStatus.CONFLICT, "Seat was just booked by someone else, please pick another seat");
-    }
-
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorResponse> badRequest(BadRequestException e) {
-        return build(HttpStatus.BAD_REQUEST, e.getMessage());
+    // We waited more than 5 seconds for the seat lock (someone else is booking this seat right now).
+    @ExceptionHandler(PessimisticLockingFailureException.class)
+    public ResponseEntity<ErrorResponse> seatBusy(PessimisticLockingFailureException e) {
+        return build(HttpStatus.CONFLICT, "Seat is being booked by someone else, please try again");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

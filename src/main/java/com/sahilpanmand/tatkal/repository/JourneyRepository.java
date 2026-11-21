@@ -10,8 +10,6 @@ import java.util.List;
 
 public interface JourneyRepository extends JpaRepository<Journey, Long> {
 
-    boolean existsByTrainIdAndJourneyDate(Long trainId, LocalDate journeyDate);
-
     @Query("""
             select j from Journey j join fetch j.train t
             where lower(t.source) = lower(:source)

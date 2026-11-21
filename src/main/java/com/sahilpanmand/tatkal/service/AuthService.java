@@ -3,7 +3,6 @@ package com.sahilpanmand.tatkal.service;
 import com.sahilpanmand.tatkal.dto.AuthResponse;
 import com.sahilpanmand.tatkal.dto.LoginRequest;
 import com.sahilpanmand.tatkal.dto.RegisterRequest;
-import com.sahilpanmand.tatkal.entity.Role;
 import com.sahilpanmand.tatkal.entity.User;
 import com.sahilpanmand.tatkal.exception.ConflictException;
 import com.sahilpanmand.tatkal.exception.UnauthorizedException;
@@ -26,7 +25,6 @@ public class AuthService {
         this.jwtUtil = jwtUtil;
     }
 
-    // Everyone who registers is a normal USER. The ADMIN account is created by DataSeeder.
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         String email = request.email().trim().toLowerCase();
@@ -34,7 +32,7 @@ public class AuthService {
             throw new ConflictException("Email is already registered");
         }
         User user = userRepository.save(
-                new User(request.name(), email, passwordEncoder.encode(request.password()), Role.USER));
+                new User(request.name(), email, passwordEncoder.encode(request.password())));
         return toResponse(user);
     }
 
@@ -49,7 +47,6 @@ public class AuthService {
     }
 
     private AuthResponse toResponse(User user) {
-        String role = user.getRole().name();
-        return new AuthResponse(jwtUtil.generateToken(user.getEmail(), role), user.getEmail(), role);
+        return new AuthResponse(jwtUtil.generateToken(user.getEmail()), user.getEmail());
     }
 }

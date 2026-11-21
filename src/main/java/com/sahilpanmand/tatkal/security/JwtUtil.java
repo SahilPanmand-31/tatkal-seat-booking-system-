@@ -11,7 +11,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
-// Creates and reads JWT tokens. subject = user email, extra claim "role" = USER / ADMIN.
+// Creates and reads JWT tokens. The token's subject is the user's email.
 @Component
 public class JwtUtil {
 
@@ -25,11 +25,10 @@ public class JwtUtil {
         this.expirationMillis = expirationMinutes * 60_000;
     }
 
-    public String generateToken(String email, String role) {
+    public String generateToken(String email) {
         Date now = new Date();
         return Jwts.builder()
                 .subject(email)
-                .claim("role", role)
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + expirationMillis))
                 .signWith(key)

@@ -21,24 +21,18 @@ public class User {
     @Column(nullable = false, length = 100)
     private String passwordHash;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 10)
-    private Role role;
-
     protected User() {
         // needed by JPA
     }
 
-    public User(String name, String email, String passwordHash, Role role) {
+    public User(String name, String email, String passwordHash) {
         this.name = name;
         this.email = email;
         this.passwordHash = passwordHash;
-        this.role = role;
     }
 
     public Long getId() { return id; }
     public String getName() { return name; }
     public String getEmail() { return email; }
     public String getPasswordHash() { return passwordHash; }
-    public Role getRole() { return role; }
 }
