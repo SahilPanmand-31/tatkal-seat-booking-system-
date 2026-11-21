@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())                  // no cookies/sessions, so CSRF does not apply
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/trains/**", "/api/journeys/**").permitAll()
